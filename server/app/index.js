@@ -4,7 +4,7 @@ const Hapi  = require('hapi');
 
 const server = Hapi.Server({
     host: 'localhost',
-    port: '8080',
+    port: '8000',
     router: {
         isCaseSensitive   : false,
         stripTrailingSlash: true

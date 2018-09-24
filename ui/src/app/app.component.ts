@@ -41,37 +41,37 @@ export class AppComponent implements OnInit {
 
     data = [
         {
-            'id': '1',
+            'id': 1,
             'group': 'GNE study',
             'total': 100,
             'enrolled': 10
         },
         {
-            'id': '2',
+            'id': 2,
             'group': 'Diabetic',
             'total': 50,
             'Enrolled': 0
         },
         {
-            'id': '3',
+            'id': 3,
             'group': 'CHAMP',
             'total': 29,
             'enrolled': 3
         },
         {
-            'id': '4',
+            'id': 4,
             'group': 'SD-DOC',
             'total': 98,
             'enrolled': 10
         },
         {
-            'id': '5',
+            'id': 5,
             'group': 'Glaucoma',
             'total': 34,
             'Enrolled': 0
         },
         {
-            'id': '6',
+            'id': 6,
             'group': 'GNE2',
             'total': 68,
             'enrolled': 32
@@ -110,26 +110,25 @@ export class AppComponent implements OnInit {
         this.y = d3Scale.scaleLinear()
             .rangeRound([this.height, 0]);
         this.z = d3Scale.scaleOrdinal()
-            .range(['#98abc5', '#8a89a6']);
+            .range(['#98abc5', '#8a89a6', '#7b6888', '#6b486b', '#a05d56', '#d0743c', '#ff8c00']);
     }
 
     private drawChart(data: any[]) {
 
-        const keys = Object.getOwnPropertyNames(data[0]).slice(1);
+        const keys = Object.getOwnPropertyNames(data[0]).slice(2);
 
         data = data.map(v => {
-            v.total = keys.map(key => v[key]).reduce((a, b) => a + b, 0);
+            v.total = v['total'];
             return v;
         });
-        data.sort((a: any, b: any) => b.total - a.total);
 
         this.x.domain(data.map((d: any) => d.group));
-        this.y.domain([0, d3Array.max(data, (d: any) => d.enrolled + 10)]).nice();
+        this.y.domain([0, d3Array.max(data, (d: any) => d.total + 30)]).nice();
         this.z.domain(keys);
 
         this.g.append('g')
             .selectAll('g')
-            .data(d3Shape.stack().keys(keys)(data))
+            .data(d3Shape.stack().keys(['total'])(data))
             .enter().append('g')
             .attr('fill', d => this.z(d.key))
             .selectAll('rect')
@@ -138,6 +137,18 @@ export class AppComponent implements OnInit {
             .attr('x', d => this.x(d.data.group))
             .attr('y', d => this.y(d[1]))
             .attr('height', d => this.y(d[0]) - this.y(d[1]))
+            .attr('width', this.x.bandwidth());
+        this.g.append('g')
+            .selectAll('g')
+            .data(d3Shape.stack().keys(['enrolled'])(data))
+            .enter().append('g')
+            .attr('fill', d => this.z(d.key))
+            .selectAll('rect')
+            .data(d => d)
+            .enter().append('rect')
+            .attr('x', d => this.x(d.data.group))
+            .attr('y', d => this.y(d[1]) || 0)
+            .attr('height', d => this.y(d[0]) - this.y(d[1]) || 0)
             .attr('width', this.x.bandwidth());
 
         this.g.append('g')
